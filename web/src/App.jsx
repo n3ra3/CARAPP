@@ -10,6 +10,7 @@ import ServicePage from './pages/ServicePage';
 import ExpensesPage from './pages/ExpensesPage';
 import RemindersPage from './pages/RemindersPage';
 import DocumentsPage from './pages/DocumentsPage';
+import FuelMapPage from './pages/FuelMapPage';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -51,6 +52,7 @@ export default function App() {
         <Route path="car/:id/expenses" element={<ExpensesPage />} />
         <Route path="reminders" element={<RemindersPage />} />
         <Route path="documents" element={<DocumentsPage />} />
+        <Route path="fuel-map" element={<FuelMapPage />} />
       </Route>
     </Routes>
   );

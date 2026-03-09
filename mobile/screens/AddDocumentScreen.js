@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Image
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, Image,
+  KeyboardAvoidingView, Platform
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import ModalPicker from '../components/ModalPicker';
 import * as ImagePicker from 'expo-image-picker';
 import api from '../services/api';
 
@@ -128,7 +129,11 @@ export default function AddDocumentScreen({ navigation, route }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.back}>← Отмена</Text>
@@ -177,22 +182,15 @@ export default function AddDocumentScreen({ navigation, route }) {
 
         {/* Привязка к авто */}
         <Text style={styles.label}>Привязать к автомобилю</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={carId}
-            onValueChange={setCarId}
-            style={styles.picker}
-          >
-            <Picker.Item label="Не привязывать" value={null} />
-            {cars.map(c => (
-              <Picker.Item
-                key={c.id}
-                label={`${c.brand_name} ${c.model_name}`}
-                value={c.id}
-              />
-            ))}
-          </Picker>
-        </View>
+        <ModalPicker
+          items={[
+            { label: 'Не привязывать', value: null },
+            ...cars.map(c => ({ label: `${c.brand_name} ${c.model_name}`, value: c.id }))
+          ]}
+          selectedValue={carId}
+          onValueChange={setCarId}
+          placeholder="Привязать к автомобилю"
+        />
 
         {/* Даты */}
         <View style={styles.row}>
@@ -276,6 +274,7 @@ export default function AddDocumentScreen({ navigation, route }) {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

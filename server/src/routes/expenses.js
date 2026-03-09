@@ -109,6 +109,9 @@ router.get('/car/:carId/stats', async (req, res, next) => {
     );
 
     // Расчёт среднего расхода топлива
+    let avgConsumption = null;
+
+    // Метод 1: tank-to-tank (точный) — нужны 2+ заправки с пробегом
     const fuelConsumption = await db.query(
       `SELECT fuel_volume, mileage
        FROM expenses
@@ -117,13 +120,52 @@ router.get('/car/:carId/stats', async (req, res, next) => {
       [req.params.carId]
     );
 
-    let avgConsumption = null;
     const fuelData = fuelConsumption.rows;
     if (fuelData.length >= 2) {
       const totalFuel = fuelData.slice(1).reduce((sum, r) => sum + parseFloat(r.fuel_volume), 0);
       const distance = fuelData[fuelData.length - 1].mileage - fuelData[0].mileage;
       if (distance > 0) {
-        avgConsumption = ((totalFuel / distance) * 100).toFixed(2);
+        avgConsumption = ((totalFuel / distance) * 100).toFixed(1);
+      }
+    }
+
+    // Метод 2: общий объём топлива / диапазон пробега из ВСЕХ расходов
+    if (avgConsumption === null) {
+      const totalVolume = parseFloat(fuelStats.rows[0].total_volume) || 0;
+      if (totalVolume > 0) {
+        const mileageRange = await db.query(
+          `SELECT MIN(mileage) as min_m, MAX(mileage) as max_m
+           FROM expenses
+           WHERE car_id = $1 AND mileage IS NOT NULL`,
+          [req.params.carId]
+        );
+        const range = mileageRange.rows[0];
+        if (range && range.max_m && range.min_m && range.max_m > range.min_m) {
+          const distance = range.max_m - range.min_m;
+          avgConsumption = ((totalVolume / distance) * 100).toFixed(1);
+        }
+      }
+    }
+
+    // Метод 3: объём топлива / разница пробега авто
+    if (avgConsumption === null) {
+      const totalVolume = parseFloat(fuelStats.rows[0].total_volume) || 0;
+      if (totalVolume > 0) {
+        const carMileage = await db.query(
+          `SELECT mileage FROM cars WHERE id = $1`,
+          [req.params.carId]
+        );
+        const firstExpense = await db.query(
+          `SELECT MIN(mileage) as first_m FROM expenses
+           WHERE car_id = $1 AND mileage IS NOT NULL`,
+          [req.params.carId]
+        );
+        const currentMileage = carMileage.rows[0]?.mileage;
+        const firstMileage = firstExpense.rows[0]?.first_m;
+        if (currentMileage && firstMileage && currentMileage > firstMileage) {
+          const distance = currentMileage - firstMileage;
+          avgConsumption = ((totalVolume / distance) * 100).toFixed(1);
+        }
       }
     }
 

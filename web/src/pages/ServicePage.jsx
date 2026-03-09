@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { carsAPI, serviceAPI } from '../services/api';
 import { Plus, X, ArrowLeft, Trash2 } from 'lucide-react';
@@ -119,7 +119,7 @@ export default function ServicePage() {
                   <td>{rec.service_type_name}</td>
                   <td>{rec.description || '—'}</td>
                   <td>{rec.mileage ? `${rec.mileage.toLocaleString()} км` : '—'}</td>
-                  <td>{rec.cost ? `${parseFloat(rec.cost).toLocaleString()} ₽` : '—'}</td>
+                  <td>{rec.cost ? `${parseFloat(rec.cost).toLocaleString()} MDL` : '—'}</td>
                   <td>
                     <button className="btn btn-danger btn-sm" onClick={() => handleDelete(rec.id)}>
                       <Trash2 size={14} />
@@ -188,7 +188,7 @@ export default function ServicePage() {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Стоимость (₽)</label>
+                <label className="form-label">Стоимость (MDL)</label>
                 <input
                   type="number"
                   className="form-input"

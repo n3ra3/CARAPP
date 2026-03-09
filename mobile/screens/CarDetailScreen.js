@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, Alert
 } from 'react-native';
@@ -79,7 +79,7 @@ export default function CarDetailScreen({ route, navigation }) {
           style={styles.actionBtn}
           onPress={() => navigation.navigate('AddExpense', { carId: id, carName })}
         >
-          <Text style={styles.actionIcon}>₽</Text>
+          <Text style={styles.actionIcon}>MDL</Text>
           <Text style={styles.actionText}>Расход</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -92,6 +92,24 @@ export default function CarDetailScreen({ route, navigation }) {
       </View>
 
       {/* Статистика */}
+      <View style={styles.statsRow}>
+        <View style={styles.statCard}>
+          <Text style={styles.statValue}>
+            {stats?.byCategory
+              ? Math.round(stats.byCategory.reduce((s, c) => s + parseFloat(c.total), 0)).toLocaleString()
+              : '0'}
+          </Text>
+          <Text style={styles.statLabel}>MDL всего</Text>
+        </View>
+        <View style={styles.statCard}>
+          <Text style={styles.statValue}>
+            {stats?.byMonth?.length > 0
+              ? Math.round(stats.byMonth.reduce((s, m) => s + parseFloat(m.total), 0) / stats.byMonth.length).toLocaleString()
+              : '0'}
+          </Text>
+          <Text style={styles.statLabel}>MDL/мес</Text>
+        </View>
+      </View>
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
           <Text style={styles.statValue}>
@@ -113,7 +131,7 @@ export default function CarDetailScreen({ route, navigation }) {
             <View key={cat.name} style={styles.expenseRow}>
               <Text style={styles.expenseName}>{cat.name}</Text>
               <Text style={styles.expenseValue}>
-                {parseFloat(cat.total).toLocaleString()} ₽
+                {parseFloat(cat.total).toLocaleString()} MDL
               </Text>
             </View>
           ))}
@@ -133,7 +151,7 @@ export default function CarDetailScreen({ route, navigation }) {
               </Text>
               {rec.cost && (
                 <Text style={styles.serviceCost}>
-                  {parseFloat(rec.cost).toLocaleString()} ₽
+                  {parseFloat(rec.cost).toLocaleString()} MDL
                 </Text>
               )}
             </View>

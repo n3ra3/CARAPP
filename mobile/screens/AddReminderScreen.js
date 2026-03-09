@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert,
+  KeyboardAvoidingView, Platform
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import ModalPicker from '../components/ModalPicker';
 import api from '../services/api';
 import NotificationService from '../services/NotificationService';
 
@@ -108,7 +109,11 @@ export default function AddReminderScreen({ navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.back}>← Отмена</Text>
@@ -132,21 +137,12 @@ export default function AddReminderScreen({ navigation }) {
         </ScrollView>
 
         <Text style={styles.label}>Автомобиль *</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={carId}
-            onValueChange={setCarId}
-            style={styles.picker}
-          >
-            {cars.map(c => (
-              <Picker.Item
-                key={c.id}
-                label={`${c.brand_name} ${c.model_name}`}
-                value={c.id}
-              />
-            ))}
-          </Picker>
-        </View>
+        <ModalPicker
+          items={cars.map(c => ({ label: `${c.brand_name} ${c.model_name}`, value: c.id }))}
+          selectedValue={carId}
+          onValueChange={setCarId}
+          placeholder="Выберите автомобиль"
+        />
 
         <Text style={styles.label}>Название *</Text>
         <TextInput
@@ -220,6 +216,7 @@ export default function AddReminderScreen({ navigation }) {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

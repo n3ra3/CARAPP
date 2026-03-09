@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert,
+  KeyboardAvoidingView, Platform
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import ModalPicker from '../components/ModalPicker';
 import api from '../services/api';
 
 export default function AddServiceScreen({ route, navigation }) {
@@ -55,7 +56,11 @@ export default function AddServiceScreen({ route, navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.back}>← Отмена</Text>
@@ -66,18 +71,12 @@ export default function AddServiceScreen({ route, navigation }) {
 
       <View style={styles.form}>
         <Text style={styles.label}>Тип работ *</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={serviceTypeId}
-            onValueChange={setServiceTypeId}
-            style={styles.picker}
-          >
-            <Picker.Item label="Выберите тип работ" value={null} />
-            {serviceTypes.map(t => (
-              <Picker.Item key={t.id} label={t.name} value={t.id} />
-            ))}
-          </Picker>
-        </View>
+        <ModalPicker
+          items={serviceTypes.map(t => ({ label: t.name, value: t.id }))}
+          selectedValue={serviceTypeId}
+          onValueChange={setServiceTypeId}
+          placeholder="Выберите тип работ"
+        />
 
         <Text style={styles.label}>Дата</Text>
         <TextInput
@@ -96,7 +95,7 @@ export default function AddServiceScreen({ route, navigation }) {
           keyboardType="numeric"
         />
 
-        <Text style={styles.label}>Стоимость (₽)</Text>
+        <Text style={styles.label}>Стоимость (MDL)</Text>
         <TextInput
           style={styles.input}
           placeholder="5000"
@@ -126,6 +125,7 @@ export default function AddServiceScreen({ route, navigation }) {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

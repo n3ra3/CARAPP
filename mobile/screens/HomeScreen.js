@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl
 } from 'react-native';
@@ -9,6 +9,7 @@ export default function HomeScreen({ navigation }) {
   const { user, logout } = useAuth();
   const [cars, setCars] = useState([]);
   const [reminders, setReminders] = useState({ byDate: [], byMileage: [] });
+  const [totalExpenses, setTotalExpenses] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -23,6 +24,19 @@ export default function HomeScreen({ navigation }) {
       ]);
       setCars(carsRes.data.cars);
       setReminders(remindersRes.data.reminders);
+
+      // Загрузка общих расходов
+      if (carsRes.data.cars.length > 0) {
+        const statsPromises = carsRes.data.cars.map(car =>
+          api.get(`/expenses/car/${car.id}/stats`).catch(() => null)
+        );
+        const allStats = await Promise.all(statsPromises);
+        const total = allStats.reduce((sum, res) => {
+          if (!res?.data?.stats?.byCategory) return sum;
+          return sum + res.data.stats.byCategory.reduce((s, c) => s + parseFloat(c.total), 0);
+        }, 0);
+        setTotalExpenses(Math.round(total));
+      }
     } catch (e) {
       console.error(e);
     }
@@ -59,6 +73,15 @@ export default function HomeScreen({ navigation }) {
             {totalReminders}
           </Text>
           <Text style={styles.statLabel}>Напоминаний</Text>
+        </View>
+      </View>
+
+      <View style={styles.statsRow}>
+        <View style={styles.statCard}>
+          <Text style={[styles.statValue, { color: '#ef4444' }]}>
+            {totalExpenses.toLocaleString()} MDL
+          </Text>
+          <Text style={styles.statLabel}>Всего расходов</Text>
         </View>
       </View>
 

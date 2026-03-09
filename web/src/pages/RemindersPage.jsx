@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { remindersAPI, carsAPI } from '../services/api';
 import { Plus, X, Check, Trash2, Bell, Calendar, Gauge } from 'lucide-react';
 

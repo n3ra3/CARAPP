@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Text, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -21,17 +22,56 @@ import AddServiceScreen from './screens/AddServiceScreen';
 import AddReminderScreen from './screens/AddReminderScreen';
 import DocumentsScreen from './screens/DocumentsScreen';
 import AddDocumentScreen from './screens/AddDocumentScreen';
+import FuelMapScreen from './screens/FuelMapScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 function MainTabs() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
-      <Tab.Screen name="Главная" component={HomeScreen} />
-      <Tab.Screen name="Гараж" component={GarageScreen} />
-      <Tab.Screen name="Документы" component={DocumentsScreen} />
-      <Tab.Screen name="Напоминания" component={RemindersScreen} />
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: '#2563eb',
+        tabBarInactiveTintColor: '#94a3b8',
+        tabBarStyle: {
+          backgroundColor: '#fff',
+          borderTopColor: '#e2e8f0',
+          paddingBottom: Platform.OS === 'ios' ? 24 : 8,
+          paddingTop: 4,
+          height: Platform.OS === 'ios' ? 84 : 64,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+        },
+      }}
+    >
+      <Tab.Screen
+        name="Главная"
+        component={HomeScreen}
+        options={{ tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color }}>🏠</Text> }}
+      />
+      <Tab.Screen
+        name="Гараж"
+        component={GarageScreen}
+        options={{ tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color }}>🚗</Text> }}
+      />
+      <Tab.Screen
+        name="Документы"
+        component={DocumentsScreen}
+        options={{ tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color }}>📄</Text> }}
+      />
+      <Tab.Screen
+        name="Заправки"
+        component={FuelMapScreen}
+        options={{ tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color }}>⛽</Text> }}
+      />
+      <Tab.Screen
+        name="Напоминания"
+        component={RemindersScreen}
+        options={{ tabBarIcon: ({ color, size }) => <Text style={{ fontSize: size, color }}>🔔</Text> }}
+      />
     </Tab.Navigator>
   );
 }
@@ -59,16 +99,13 @@ export default function App() {
 
   const initializeNotifications = async () => {
     try {
+      // Запрашиваем разрешение на уведомления
+      await NotificationService.requestPermissions();
+
       // Настройка канала для Android
       await NotificationService.setupNotificationChannel();
-
-      // Попытка получить push-токен (не блокирует работу приложения)
-      const token = await NotificationService.getPushToken();
-      if (token) {
-        setExpoPushToken(token);
-      }
     } catch (e) {
-      console.log('Push уведомления недоступны:', e.message);
+      console.log('Уведомления недоступны:', e.message);
     }
 
     // Слушатель входящих уведомлений (когда приложение открыто)

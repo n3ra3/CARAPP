@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert,
+  KeyboardAvoidingView, Platform
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import ModalPicker from '../components/ModalPicker';
 import api from '../services/api';
 
 export default function AddExpenseScreen({ route, navigation }) {
@@ -48,8 +49,8 @@ export default function AddExpenseScreen({ route, navigation }) {
         description: description || null,
         date,
         mileage: mileage ? parseInt(mileage) : null,
-        liters: liters ? parseFloat(liters) : null,
-        price_per_liter: pricePerLiter ? parseFloat(pricePerLiter) : null
+        fuel_volume: liters ? parseFloat(liters) : null,
+        fuel_price: pricePerLiter ? parseFloat(pricePerLiter) : null
       });
       Alert.alert('Успешно', 'Расход добавлен', [
         { text: 'OK', onPress: () => navigation.goBack() }
@@ -70,7 +71,11 @@ export default function AddExpenseScreen({ route, navigation }) {
   }, [liters, pricePerLiter, isFuel]);
 
   return (
-    <ScrollView style={styles.container}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.back}>← Отмена</Text>
@@ -81,18 +86,12 @@ export default function AddExpenseScreen({ route, navigation }) {
 
       <View style={styles.form}>
         <Text style={styles.label}>Категория *</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={categoryId}
-            onValueChange={setCategoryId}
-            style={styles.picker}
-          >
-            <Picker.Item label="Выберите категорию" value={null} />
-            {categories.map(c => (
-              <Picker.Item key={c.id} label={c.name} value={c.id} />
-            ))}
-          </Picker>
-        </View>
+        <ModalPicker
+          items={categories.map(c => ({ label: c.name, value: c.id }))}
+          selectedValue={categoryId}
+          onValueChange={setCategoryId}
+          placeholder="Выберите категорию"
+        />
 
         {isFuel && (
           <>
@@ -121,7 +120,7 @@ export default function AddExpenseScreen({ route, navigation }) {
           </>
         )}
 
-        <Text style={styles.label}>Сумма (₽) *</Text>
+        <Text style={styles.label}>Сумма (MDL) *</Text>
         <TextInput
           style={styles.input}
           placeholder="1500"
@@ -168,6 +167,7 @@ export default function AddExpenseScreen({ route, navigation }) {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

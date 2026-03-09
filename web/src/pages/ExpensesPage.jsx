@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { carsAPI, expensesAPI } from '../services/api';
 import { Plus, X, ArrowLeft, Trash2 } from 'lucide-react';
@@ -133,7 +133,7 @@ export default function ExpensesPage() {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip formatter={(value) => `${value.toLocaleString()} ₽`} />
+                <Tooltip formatter={(value) => `${value.toLocaleString()} MDL`} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -178,11 +178,11 @@ export default function ExpensesPage() {
                   <td>{exp.category_name}</td>
                   <td>
                     {exp.fuel_volume 
-                      ? `${exp.fuel_volume} л × ${exp.fuel_price} ₽` 
+                      ? `${exp.fuel_volume} л × ${exp.fuel_price} MDL` 
                       : (exp.description || '—')}
                   </td>
                   <td>{exp.mileage ? `${exp.mileage.toLocaleString()} км` : '—'}</td>
-                  <td style={{ fontWeight: 600 }}>{parseFloat(exp.amount).toLocaleString()} ₽</td>
+                  <td style={{ fontWeight: 600 }}>{parseFloat(exp.amount).toLocaleString()} MDL</td>
                   <td>
                     <button className="btn btn-danger btn-sm" onClick={() => handleDelete(exp.id)}>
                       <Trash2 size={14} />
@@ -260,7 +260,7 @@ export default function ExpensesPage() {
                     />
                   </div>
                   <div className="form-group">
-                    <label className="form-label">Цена за литр (₽)</label>
+                    <label className="form-label">Цена за литр (MDL)</label>
                     <input
                       type="number"
                       className="form-input"
@@ -281,7 +281,7 @@ export default function ExpensesPage() {
               )}
 
               <div className="form-group">
-                <label className="form-label">Сумма (₽) *</label>
+                <label className="form-label">Сумма (MDL) *</label>
                 <input
                   type="number"
                   className="form-input"

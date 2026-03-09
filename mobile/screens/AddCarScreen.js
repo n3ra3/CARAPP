@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert,
+  KeyboardAvoidingView, Platform
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import ModalPicker from '../components/ModalPicker';
 import api from '../services/api';
 
 export default function AddCarScreen({ navigation }) {
@@ -74,7 +75,11 @@ export default function AddCarScreen({ navigation }) {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.back}>← Отмена</Text>
@@ -84,33 +89,21 @@ export default function AddCarScreen({ navigation }) {
 
       <View style={styles.form}>
         <Text style={styles.label}>Марка *</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={brandId}
-            onValueChange={setBrandId}
-            style={styles.picker}
-          >
-            <Picker.Item label="Выберите марку" value={null} />
-            {brands.map(b => (
-              <Picker.Item key={b.id} label={b.name} value={b.id} />
-            ))}
-          </Picker>
-        </View>
+        <ModalPicker
+          items={brands.map(b => ({ label: b.name, value: b.id }))}
+          selectedValue={brandId}
+          onValueChange={setBrandId}
+          placeholder="Выберите марку"
+        />
 
         <Text style={styles.label}>Модель *</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker
-            selectedValue={modelId}
-            onValueChange={setModelId}
-            style={styles.picker}
-            enabled={models.length > 0}
-          >
-            <Picker.Item label="Выберите модель" value={null} />
-            {models.map(m => (
-              <Picker.Item key={m.id} label={m.name} value={m.id} />
-            ))}
-          </Picker>
-        </View>
+        <ModalPicker
+          items={models.map(m => ({ label: m.name, value: m.id }))}
+          selectedValue={modelId}
+          onValueChange={setModelId}
+          placeholder="Выберите модель"
+          enabled={models.length > 0}
+        />
 
         <Text style={styles.label}>Год выпуска</Text>
         <TextInput
@@ -162,6 +155,7 @@ export default function AddCarScreen({ navigation }) {
         </TouchableOpacity>
       </View>
     </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 

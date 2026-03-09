@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, Car, Bell, LogOut, FileText } from 'lucide-react';
+import { Home, Car, Bell, LogOut, FileText, Fuel } from 'lucide-react';
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -22,6 +22,9 @@ export default function Layout() {
           </NavLink>
           <NavLink to="/reminders" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <Bell size={20} /> Напоминания
+          </NavLink>
+          <NavLink to="/fuel-map" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <Fuel size={20} /> Заправки
           </NavLink>
         </nav>
 

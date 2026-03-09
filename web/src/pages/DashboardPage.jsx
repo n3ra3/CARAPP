@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { carsAPI, remindersAPI } from '../services/api';
-import { Car, Bell, AlertTriangle, Plus } from 'lucide-react';
+import { carsAPI, remindersAPI, expensesAPI } from '../services/api';
+import { Car, Bell, AlertTriangle, Plus, DollarSign } from 'lucide-react';
 
 export default function DashboardPage() {
   const [cars, setCars] = useState([]);
   const [reminders, setReminders] = useState({ byDate: [], byMileage: [] });
+  const [totalExpenses, setTotalExpenses] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -20,6 +21,17 @@ export default function DashboardPage() {
       ]);
       setCars(carsRes.data.cars);
       setReminders(remindersRes.data.reminders);
+
+      // Загрузка общей суммы расходов по всем авто
+      if (carsRes.data.cars.length > 0) {
+        const statsPromises = carsRes.data.cars.map(car => expensesAPI.getStats(car.id).catch(() => null));
+        const allStats = await Promise.all(statsPromises);
+        const total = allStats.reduce((sum, res) => {
+          if (!res?.data?.stats?.byCategory) return sum;
+          return sum + res.data.stats.byCategory.reduce((s, c) => s + parseFloat(c.total), 0);
+        }, 0);
+        setTotalExpenses(Math.round(total));
+      }
     } catch (error) {
       console.error('Ошибка загрузки:', error);
     } finally {
@@ -38,7 +50,7 @@ export default function DashboardPage() {
       <h1 className="page-title">Главная</h1>
 
       {/* Статистика */}
-      <div className="grid grid-3" style={{ marginBottom: '2rem' }}>
+      <div className="grid grid-4" style={{ marginBottom: '2rem' }}>
         <div className="stat-card">
           <div className="stat-value">{cars.length}</div>
           <div className="stat-label">Автомобилей в гараже</div>
@@ -54,6 +66,12 @@ export default function DashboardPage() {
             {cars.reduce((sum, car) => sum + (car.mileage || 0), 0).toLocaleString()}
           </div>
           <div className="stat-label">Общий пробег (км)</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-value" style={{ color: 'var(--danger)' }}>
+            {totalExpenses.toLocaleString()} MDL
+          </div>
+          <div className="stat-label">Всего расходов</div>
         </div>
       </div>
 

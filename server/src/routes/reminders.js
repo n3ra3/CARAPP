@@ -11,7 +11,8 @@ router.use(auth);
 router.get('/', async (req, res, next) => {
   try {
     const result = await db.query(
-      `SELECT r.*, c.id as car_id, b.name as brand_name, m.name as model_name
+      `SELECT r.*, c.id as car_id, c.mileage as current_mileage,
+              b.name as brand_name, m.name as model_name
        FROM reminders r
        JOIN cars c ON r.car_id = c.id
        LEFT JOIN car_brands b ON c.brand_id = b.id
@@ -105,16 +106,17 @@ router.post('/', [
   body('car_id').isInt(),
   body('title').trim().isLength({ min: 1, max: 200 }),
   body('reminder_type').isIn(['date', 'mileage']),
-  body('due_date').optional().isDate(),
-  body('due_mileage').optional().isInt({ min: 0 })
+  body('due_date').optional({ values: 'falsy' }).isDate(),
+  body('due_mileage').optional({ values: 'falsy' }).isInt({ min: 0 })
 ], async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      const firstError = errors.array()[0];
+      return res.status(400).json({ error: firstError.msg || 'Ошибка валидации', errors: errors.array() });
     }
 
-    const { car_id, title, description, reminder_type, due_date, due_mileage } = req.body;
+    const { car_id, title, description, notes, reminder_type, due_date, due_mileage } = req.body;
 
     // Проверка владельца
     const carCheck = await db.query(
@@ -138,7 +140,7 @@ router.post('/', [
       `INSERT INTO reminders (car_id, title, description, reminder_type, due_date, due_mileage)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [car_id, title, description, reminder_type, due_date || null, due_mileage || null]
+      [car_id, title, description || notes || null, reminder_type, due_date || null, due_mileage || null]
     );
 
     res.status(201).json({ reminder: result.rows[0] });

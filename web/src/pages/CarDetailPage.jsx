@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { carsAPI, serviceAPI, expensesAPI, remindersAPI } from '../services/api';
-import { Wrench, Fuel, Bell, ArrowLeft, Edit, Trash2 } from 'lucide-react';
+import { Wrench, Fuel, Bell, ArrowLeft, Edit, Trash2, DollarSign, TrendingUp, Plus } from 'lucide-react';
 
 export default function CarDetailPage() {
   const { id } = useParams();
@@ -117,24 +117,62 @@ export default function CarDetailPage() {
         </div>
       </div>
 
-      {/* Быстрые действия */}
-      <div className="grid grid-3">
-        <Link to={`/car/${id}/service`} className="stat-card" style={{ textDecoration: 'none', color: 'inherit' }}>
-          <Wrench size={24} style={{ color: 'var(--primary)', marginBottom: '0.5rem' }} />
-          <div className="stat-value">{recentService.length}</div>
-          <div className="stat-label">Сервисных записей</div>
-        </Link>
-        <Link to={`/car/${id}/expenses`} className="stat-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+      {/* Информативные карточки */}
+      <div className="grid grid-3" style={{ marginBottom: '0.5rem' }}>
+        <div className="stat-card">
+          <DollarSign size={24} style={{ color: 'var(--danger)', marginBottom: '0.5rem' }} />
+          <div className="stat-value">
+            {stats?.byCategory
+              ? Math.round(stats.byCategory.reduce((s, c) => s + parseFloat(c.total), 0)).toLocaleString()
+              : '0'} MDL
+          </div>
+          <div className="stat-label">Всего расходов</div>
+        </div>
+        <div className="stat-card">
+          <TrendingUp size={24} style={{ color: 'var(--warning)', marginBottom: '0.5rem' }} />
+          <div className="stat-value">
+            {stats?.byMonth?.length > 0
+              ? Math.round(stats.byMonth.reduce((s, m) => s + parseFloat(m.total), 0) / stats.byMonth.length).toLocaleString()
+              : '0'} MDL
+          </div>
+          <div className="stat-label">Средний расход/мес</div>
+        </div>
+        <div className="stat-card">
           <Fuel size={24} style={{ color: 'var(--success)', marginBottom: '0.5rem' }} />
           <div className="stat-value">
             {stats?.fuel?.avgConsumption ? `${stats.fuel.avgConsumption} л/100км` : '—'}
           </div>
-          <div className="stat-label">Средний расход</div>
-        </Link>
-        <Link to="/reminders" className="stat-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <div className="stat-label">Расход топлива</div>
+        </div>
+      </div>
+      <div className="grid grid-3" style={{ marginBottom: '0.5rem' }}>
+        <div className="stat-card">
+          <Wrench size={24} style={{ color: 'var(--primary)', marginBottom: '0.5rem' }} />
+          <div className="stat-value">{recentService.length}</div>
+          <div className="stat-label">Сервисных записей</div>
+        </div>
+        <div className="stat-card">
+          <Fuel size={24} style={{ color: 'var(--primary)', marginBottom: '0.5rem' }} />
+          <div className="stat-value">{stats?.fuel?.refuels || 0}</div>
+          <div className="stat-label">Заправок</div>
+        </div>
+        <div className="stat-card">
           <Bell size={24} style={{ color: 'var(--warning)', marginBottom: '0.5rem' }} />
           <div className="stat-value">{reminders.length}</div>
           <div className="stat-label">Напоминаний</div>
+        </div>
+      </div>
+
+      {/* Кнопки действий */}
+      <div className="grid grid-3" style={{ marginBottom: '1.5rem' }}>
+        <Link to={`/car/${id}/expenses`} className="btn btn-primary" style={{ padding: '1rem', justifyContent: 'center' }}>
+          <DollarSign size={18} /> Расходы
+        </Link>
+        <Link to={`/car/${id}/service`} className="btn btn-primary" style={{ padding: '1rem', justifyContent: 'center' }}>
+          <Wrench size={18} /> Сервис
+        </Link>
+        <Link to="/reminders" className="btn btn-primary" style={{ padding: '1rem', justifyContent: 'center' }}>
+          <Bell size={18} /> Напоминания
         </Link>
       </div>
 
@@ -151,7 +189,7 @@ export default function CarDetailPage() {
                 borderBottom: '1px solid var(--border)'
               }}>
                 <span>{cat.name}</span>
-                <span style={{ fontWeight: 600 }}>{parseFloat(cat.total).toLocaleString()} ₽</span>
+                <span style={{ fontWeight: 600 }}>{parseFloat(cat.total).toLocaleString()} MDL</span>
               </div>
             ))}
           </div>
@@ -180,7 +218,7 @@ export default function CarDetailPage() {
                   <td>{new Date(rec.date).toLocaleDateString('ru')}</td>
                   <td>{rec.service_type_name}</td>
                   <td>{rec.mileage?.toLocaleString()} км</td>
-                  <td>{rec.cost ? `${parseFloat(rec.cost).toLocaleString()} ₽` : '—'}</td>
+                  <td>{rec.cost ? `${parseFloat(rec.cost).toLocaleString()} MDL` : '—'}</td>
                 </tr>
               ))}
             </tbody>
