@@ -3,7 +3,7 @@ import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import { api } from '../App';
+import api from '../services/api';
 import NotificationService from '../services/NotificationService';
 
 export default function AddReminderScreen({ navigation }) {

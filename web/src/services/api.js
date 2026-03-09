@@ -84,4 +84,15 @@ export const catalogAPI = {
   getModels: (brandId, search) => api.get(`/catalog/brands/${brandId}/models`, { params: { search } })
 };
 
+// Documents API
+export const documentsAPI = {
+  getAll: () => api.get('/documents'),
+  getTypes: () => api.get('/documents/types'),
+  getExpiring: () => api.get('/documents/expiring'),
+  getById: (id) => api.get(`/documents/${id}`),
+  create: (data) => api.post('/documents', data),
+  update: (id, data) => api.put(`/documents/${id}`, data),
+  delete: (id) => api.delete(`/documents/${id}`)
+};
+
 export default api;

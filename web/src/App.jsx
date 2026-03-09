@@ -9,6 +9,7 @@ import CarDetailPage from './pages/CarDetailPage';
 import ServicePage from './pages/ServicePage';
 import ExpensesPage from './pages/ExpensesPage';
 import RemindersPage from './pages/RemindersPage';
+import DocumentsPage from './pages/DocumentsPage';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="car/:id/service" element={<ServicePage />} />
         <Route path="car/:id/expenses" element={<ExpensesPage />} />
         <Route path="reminders" element={<RemindersPage />} />
+        <Route path="documents" element={<DocumentsPage />} />
       </Route>
     </Routes>
   );

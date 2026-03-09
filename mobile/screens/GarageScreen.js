@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl
 } from 'react-native';
-import { api } from '../App';
+import api from '../services/api';
 
 export default function GarageScreen({ navigation }) {
   const [cars, setCars] = useState([]);

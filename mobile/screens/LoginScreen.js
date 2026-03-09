@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Alert
 } from 'react-native';
-import { useAuth } from '../App';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -19,7 +19,9 @@ export default function LoginScreen({ navigation }) {
     try {
       await login(email, password);
     } catch (e) {
-      Alert.alert('Ошибка', e.response?.data?.error || 'Ошибка входа');
+      console.log('Ошибка входа:', e);
+      const errorMsg = e.response?.data?.error || e.message || 'Ошибка входа';
+      Alert.alert('Ошибка', `${errorMsg}\n\nURL: ${e.config?.url || 'unknown'}`);
     } finally {
       setLoading(false);
     }

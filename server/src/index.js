@@ -9,6 +9,7 @@ const serviceRoutes = require('./routes/service');
 const expensesRoutes = require('./routes/expenses');
 const remindersRoutes = require('./routes/reminders');
 const catalogRoutes = require('./routes/catalog');
+const documentsRoutes = require('./routes/documents');
 
 const errorHandler = require('./middleware/errorHandler');
 
@@ -27,6 +28,7 @@ app.use('/api/service', serviceRoutes);
 app.use('/api/expenses', expensesRoutes);
 app.use('/api/reminders', remindersRoutes);
 app.use('/api/catalog', catalogRoutes);
+app.use('/api/documents', documentsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

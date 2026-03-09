@@ -1,6 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, Car, Bell, LogOut } from 'lucide-react';
+import { Home, Car, Bell, LogOut, FileText } from 'lucide-react';
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -16,6 +16,9 @@ export default function Layout() {
           </NavLink>
           <NavLink to="/garage" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <Car size={20} /> Гараж
+          </NavLink>
+          <NavLink to="/documents" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+            <FileText size={20} /> Документы
           </NavLink>
           <NavLink to="/reminders" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
             <Bell size={20} /> Напоминания

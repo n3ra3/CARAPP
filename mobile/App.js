@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import * as Notifications from 'expo-notifications';
+import api from './services/api';
 import NotificationService from './services/NotificationService';
-import { API_URL } from './config';
+import { AuthProvider } from './contexts/AuthContext';
 
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
@@ -19,19 +19,8 @@ import AddCarScreen from './screens/AddCarScreen';
 import AddExpenseScreen from './screens/AddExpenseScreen';
 import AddServiceScreen from './screens/AddServiceScreen';
 import AddReminderScreen from './screens/AddReminderScreen';
-
-// API Configuration - настройки в config.js
-export const api = axios.create({ baseURL: API_URL });
-
-api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem('token');
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
-
-// Auth Context
-const AuthContext = createContext();
-export const useAuth = () => useContext(AuthContext);
+import DocumentsScreen from './screens/DocumentsScreen';
+import AddDocumentScreen from './screens/AddDocumentScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -41,6 +30,7 @@ function MainTabs() {
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen name="Главная" component={HomeScreen} />
       <Tab.Screen name="Гараж" component={GarageScreen} />
+      <Tab.Screen name="Документы" component={DocumentsScreen} />
       <Tab.Screen name="Напоминания" component={RemindersScreen} />
     </Tab.Navigator>
   );
@@ -68,13 +58,17 @@ export default function App() {
   }, []);
 
   const initializeNotifications = async () => {
-    // Настройка канала для Android
-    await NotificationService.setupNotificationChannel();
+    try {
+      // Настройка канала для Android
+      await NotificationService.setupNotificationChannel();
 
-    // Получение push-токена
-    const token = await NotificationService.getPushToken();
-    if (token) {
-      setExpoPushToken(token);
+      // Попытка получить push-токен (не блокирует работу приложения)
+      const token = await NotificationService.getPushToken();
+      if (token) {
+        setExpoPushToken(token);
+      }
+    } catch (e) {
+      console.log('Push уведомления недоступны:', e.message);
     }
 
     // Слушатель входящих уведомлений (когда приложение открыто)
@@ -86,7 +80,6 @@ export default function App() {
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
       const data = response.notification.request.content.data;
       console.log('Нажатие на уведомление:', data);
-      // Здесь можно добавить навигацию к напоминанию
     });
   };
 
@@ -108,30 +101,12 @@ export default function App() {
     const res = await api.post('/auth/login', { email, password });
     await AsyncStorage.setItem('token', res.data.token);
     setUser(res.data.user);
-    
-    // Отправляем push-токен на сервер после входа
-    if (expoPushToken) {
-      try {
-        await api.post('/auth/push-token', { token: expoPushToken });
-      } catch (e) {
-        console.log('Ошибка сохранения push token:', e);
-      }
-    }
   };
 
   const register = async (email, password, name) => {
     const res = await api.post('/auth/register', { email, password, name });
     await AsyncStorage.setItem('token', res.data.token);
     setUser(res.data.user);
-    
-    // Отправляем push-токен на сервер после регистрации
-    if (expoPushToken) {
-      try {
-        await api.post('/auth/push-token', { token: expoPushToken });
-      } catch (e) {
-        console.log('Ошибка сохранения push token:', e);
-      }
-    }
   };
 
   const logout = async () => {
@@ -142,7 +117,7 @@ export default function App() {
   if (loading) return null;
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, expoPushToken }}>
+    <AuthProvider value={{ user, login, register, logout, expoPushToken }}>
       <NavigationContainer>
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           {user ? (
@@ -153,6 +128,7 @@ export default function App() {
               <Stack.Screen name="AddExpense" component={AddExpenseScreen} />
               <Stack.Screen name="AddService" component={AddServiceScreen} />
               <Stack.Screen name="AddReminder" component={AddReminderScreen} />
+              <Stack.Screen name="AddDocument" component={AddDocumentScreen} />
             </>
           ) : (
             <>
@@ -163,6 +139,6 @@ export default function App() {
         </Stack.Navigator>
         <StatusBar style="auto" />
       </NavigationContainer>
-    </AuthContext.Provider>
+    </AuthProvider>
   );
 }

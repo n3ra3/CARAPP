@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Modal, Alert
 } from 'react-native';
-import { api } from '../App';
+import api from '../services/api';
 
 export default function CarDetailScreen({ route, navigation }) {
   const { id } = route.params;

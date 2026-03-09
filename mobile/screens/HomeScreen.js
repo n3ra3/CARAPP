@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl
 } from 'react-native';
-import { api, useAuth } from '../App';
+import api from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function HomeScreen({ navigation }) {
   const { user, logout } = useAuth();

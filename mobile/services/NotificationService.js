@@ -36,26 +36,12 @@ class NotificationService {
   }
 
   // Получение push-токена для Expo Push Service
+  // Примечание: для работы push-уведомлений нужен реальный проект в EAS
+  // Локальные уведомления работают без push-токена
   async getPushToken() {
-    try {
-      if (!Device.isDevice) {
-        return null;
-      }
-
-      const hasPermission = await this.requestPermissions();
-      if (!hasPermission) {
-        return null;
-      }
-
-      const token = await Notifications.getExpoPushTokenAsync({
-        projectId: 'your-project-id', // Заменить на реальный projectId из app.json
-      });
-
-      return token.data;
-    } catch (error) {
-      console.error('Ошибка получения push token:', error);
-      return null;
-    }
+    // Push-токен не требуется для локальных уведомлений
+    // Если нужны push-уведомления, настройте проект через: npx eas init
+    return null;
   }
 
   // Настройка канала уведомлений для Android
@@ -185,6 +171,73 @@ class NotificationService {
       if (!reminder.is_completed && reminder.reminder_type === 'date') {
         await this.scheduleReminder(reminder);
         await this.scheduleAdvanceReminder(reminder, 3); // За 3 дня
+      }
+    }
+  }
+
+  // Планирование уведомления о документе
+  async scheduleDocumentNotification(document) {
+    if (!document.expiry_date) {
+      return null;
+    }
+
+    const expiryDate = new Date(document.expiry_date);
+    const notifyDays = document.notify_days_before || 30;
+    const notifyDate = new Date(expiryDate);
+    notifyDate.setDate(notifyDate.getDate() - notifyDays);
+    notifyDate.setHours(9, 0, 0, 0);
+
+    const now = new Date();
+
+    if (notifyDate <= now) {
+      return null;
+    }
+
+    try {
+      // Отменяем старое уведомление
+      await this.cancelDocumentNotification(document.id);
+
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: '📄 Документ истекает',
+          body: `${document.title} истекает через ${notifyDays} дней`,
+          data: { documentId: document.id, type: 'document' },
+          sound: 'default',
+        },
+        trigger: {
+          date: notifyDate,
+          channelId: 'reminders',
+        },
+      });
+
+      console.log(`Уведомление о документе запланировано: ${notificationId}`);
+      return notificationId;
+    } catch (error) {
+      console.error('Ошибка планирования уведомления о документе:', error);
+      return null;
+    }
+  }
+
+  // Отмена уведомления о документе
+  async cancelDocumentNotification(documentId) {
+    try {
+      const scheduledNotifications = await Notifications.getAllScheduledNotificationsAsync();
+      
+      for (const notification of scheduledNotifications) {
+        if (notification.content.data?.documentId === documentId) {
+          await Notifications.cancelScheduledNotificationAsync(notification.identifier);
+        }
+      }
+    } catch (error) {
+      console.error('Ошибка отмены уведомления о документе:', error);
+    }
+  }
+
+  // Синхронизация уведомлений документов
+  async syncDocuments(documents) {
+    for (const doc of documents) {
+      if (doc.expiry_date) {
+        await this.scheduleDocumentNotification(doc);
       }
     }
   }

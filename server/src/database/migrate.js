@@ -127,6 +127,26 @@ const migrate = async () => {
     `);
     console.log('✓ Таблица reminders создана');
 
+    // Документы пользователя
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS documents (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        car_id INTEGER REFERENCES cars(id) ON DELETE SET NULL,
+        title VARCHAR(200) NOT NULL,
+        doc_type VARCHAR(50) NOT NULL,
+        doc_number VARCHAR(100),
+        issue_date DATE,
+        expiry_date DATE,
+        photo_url VARCHAR(500),
+        notes TEXT,
+        notify_days_before INTEGER DEFAULT 30,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('✓ Таблица documents создана');
+
     console.log('\n✓ Миграция успешно завершена!');
     process.exit(0);
   } catch (error) {

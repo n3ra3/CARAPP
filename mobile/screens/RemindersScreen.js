@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity, RefreshControl, Alert
 } from 'react-native';
-import { api } from '../App';
+import api from '../services/api';
 import NotificationService from '../services/NotificationService';
 
 export default function RemindersScreen({ navigation }) {
