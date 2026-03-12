@@ -85,27 +85,15 @@ npx expo start
 
 ```
 diplom/
-├── server/                 # REST API
-│   ├── src/
-│   │   ├── config/         # Конфигурация БД
-│   │   ├── database/       # Миграции и seed
-│   │   ├── middleware/     # Auth, error handler
-│   │   └── routes/         # API endpoints
-│   └── package.json
-│
-├── web/                    # Веб-приложение
-│   ├── src/
-│   │   ├── components/     # React компоненты
-│   │   ├── context/        # AuthContext
-│   │   ├── pages/          # Страницы
-│   │   ├── services/       # API клиент
-│   │   └── styles/         # CSS
-│   └── package.json
-│
-├── mobile/                 # Мобильное приложение
-│   └── ...
-│
-└── docs/                   # Документация для диплома
+├── docs/                 # Документация проекта
+│   └── README.md         # Описание папки `docs`
+├── mobile/               # Мобильное приложение
+│   └── README.md         # Описание папки `mobile`
+├── server/               # Серверная часть
+│   └── README.md         # Описание папки `server`
+├── web/                  # Веб-приложение
+│   └── README.md         # Описание папки `web`
+└── README.md             # Общая информация о проекте
 ```
 
 ## API Endpoints
